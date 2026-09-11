@@ -1,0 +1,28 @@
+name: 每日台股報價推播
+
+on:
+  schedule:
+    # UTC 06:00 = 台灣時間 14:00(收盤後)。只在週一到週五執行(1-5)
+    - cron: "0 6 * * 1-5"
+  workflow_dispatch: {}  # 允許在 GitHub 網頁上手動點按鈕立即執行,方便測試
+
+jobs:
+  push-stock-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 取得程式碼
+        uses: actions/checkout@v4
+
+      - name: 設定 Python 環境
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: 安裝套件
+        run: pip install -r requirements.txt
+
+      - name: 執行股價推播
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          STOCK_CODES: "2330,2317"
+        run: python script.py
